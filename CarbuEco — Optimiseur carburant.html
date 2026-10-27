@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CarbuEco</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+:root {
+  --bg:#f1f5f9;--card:#fff;--text:#1e293b;--muted:#64748b;
+  --border:#e2e8f0;--accent:#2563eb;--ok:#16a34a;--warn:#d97706;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;
+  --border:#334155;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;
+  --border:#334155;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;margin:0;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 62px);min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:20}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+input,select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:9px;
+  padding:10px 12px;width:100%;font-size:16px;outline:none;transition:.15s border-color}
+input:focus,select:focus{border-color:var(--accent)}
+input[readonly]{opacity:.6;cursor:default}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;margin-top:12px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px 18px;
+  font-size:15px;font-weight:700;cursor:pointer;width:100%;transition:.1s opacity}
+.btn:active{opacity:.8}
+.btn-ok{background:var(--ok)}
+.btn-ghost{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 16px;
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  display:flex;align-items:center;justify-content:space-between}
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);
+  display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+.tabbtn{flex:1;padding:8px 0 6px;border:none;background:transparent;color:var(--muted);
+  font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600}
+.tabbtn.on{color:var(--accent)}
+.tabbtn svg{width:22px;height:22px;stroke-width:1.8}
+.panel{display:none;padding:14px 14px 0;max-width:500px;margin:0 auto}
+.panel.on{display:block}
+h2{font-size:15px;font-weight:800;margin:0 0 10px;letter-spacing:-.01em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bignum{font-size:34px;font-weight:900;line-height:1}
+.sub{font-size:12px;opacity:.8}
+.rbox{background:var(--accent);color:#fff;border-radius:12px;padding:14px;text-align:center}
+.rbox.ok{background:var(--ok)}
+.scard{background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:13px;margin-bottom:9px}
+.scard.best{border-color:var(--ok);border-width:2px}
+.badge{display:inline-block;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700}
+.bg{background:#dcfce7;color:#166534}.bo{background:#fef3c7;color:#92400e}.br{background:#fee2e2;color:#991b1b}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .bg{background:#14532d;color:#86efac}
+:root:not([data-theme="light"]) .bo{background:#78350f;color:#fde68a}
+:root:not([data-theme="light"]) .br{background:#7f1d1d;color:#fca5a5}}
+.sep{height:1px;background:var(--border);margin:12px 0}
+.muted{color:var(--muted);font-size:13px}
+.info-box{border-radius:11px;padding:12px 14px;font-size:13px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:22px">⛽</span>
+    <span style="font-weight:900;font-size:19px">CarbuEco</span>
+  </div>
+  <span id="topTitle" style="color:var(--muted);font-size:13px;font-weight:600">Mon véhicule</span>
+</div>
+
+<!-- ═══ TAB 1 : VÉHICULE ═══════════════════════════════════ -->
+<div id="p-veh" class="panel on">
+
+  <div class="card">
+    <h2>🚗 Profil du véhicule</h2>
+    <label>Marque / Modèle</label>
+    <input id="vnom" type="text" value="Renault Clio">
+    <label>Carburant</label>
+    <select id="vcarbu">
+      <option value="SP98">SP98</option>
+      <option value="SP95E10" selected>SP95-E10</option>
+      <option value="Diesel">Diesel</option>
+      <option value="E85">E85 (Ethanol)</option>
+    </select>
+    <div class="grid2">
+      <div><label>Réservoir (L)</label><input id="vres" type="number" value="45" min="10" max="120"></div>
+      <div><label>Conso moy. (L/100)</label><input id="vconso" type="number" value="6.5" step="0.1" oninput="majCoutKm()"></div>
+    </div>
+    <label>Coût au km (€/km) — calculé</label>
+    <input id="vcoutkm" type="number" value="0.114" step="0.001" readonly>
+    <p class="muted" style="margin:6px 0 0;font-size:11px">Calculé à partir de la conso et du prix moyen du carburant sélectionné</p>
+  </div>
+
+  <div class="card">
+    <h2>📐 Paramètres aérodynamiques</h2>
+    <div class="grid2">
+      <div><label>Cx</label><input id="vcx" type="number" value="0.30" step="0.01" min="0.1" max="0.9"></div>
+      <div><label>Surface frontale (m²)</label><input id="vsurface" type="number" value="2.19" step="0.01"></div>
+      <div><label>Masse (kg)</label><input id="vmasse" type="number" value="1100" step="10"></div>
+      <div><label>Crr (roulement)</label><input id="vcrr" type="number" value="0.013" step="0.001"></div>
+    </div>
+  </div>
+
+  <button class="btn btn-ok" onclick="sauverVeh()">💾 Sauvegarder</button>
+  <p id="vmsg" style="text-align:center;color:var(--ok);height:22px;font-size:14px;margin-top:8px"></p>
+</div>
+
+<!-- ═══ TAB 2 : ÉCONOMIES ════════════════════════════════════ -->
+<div id="p-eco" class="panel">
+  <div class="card">
+    <h2>📊 Gain selon la vitesse</h2>
+    <div class="grid2">
+      <div><label>Vitesse actuelle (km/h)</label><input id="ev1" type="number" value="110" oninput="calcEco()"></div>
+      <div><label>Vitesse cible (km/h)</label><input id="ev2" type="number" value="100" oninput="calcEco()"></div>
+    </div>
+    <label>Distance du trajet (km)</label>
+    <input id="edist" type="number" value="200" oninput="calcEco()">
+    <label>Prix carburant (€/L)</label>
+    <input id="eprix" type="number" value="1.75" step="0.01" oninput="calcEco()">
+  </div>
+
+  <div id="eco-res" class="card" style="display:none">
+    <div class="grid2" style="gap:10px">
+      <div class="rbox">
+        <div class="bignum" id="r-pct">—</div>
+        <div class="sub">Gain consommation</div>
+      </div>
+      <div class="rbox ok">
+        <div class="bignum" id="r-eur">—</div>
+        <div class="sub">Économie €</div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:12px;text-align:center">
+      <div><p class="muted">Litres économisés</p><p style="font-weight:800;font-size:20px" id="r-lit">—</p></div>
+      <div><p class="muted">Temps en plus</p><p style="font-weight:800;font-size:20px" id="r-tps">—</p></div>
+    </div>
+    <div class="sep"></div>
+    <p class="muted" style="font-size:11px">
+      Méthode : Gain = 1 − (F_totale v2 / F_totale v1) · forces calculées avec vos paramètres aéro · densité air 15°C
+    </p>
+  </div>
+
+  <div id="eco-warn" class="info-box" style="background:#fef3c7;color:#92400e;display:none">
+    ⚠️ La vitesse cible doit être inférieure à la vitesse actuelle.
+  </div>
+</div>
+
+<!-- ═══ TAB 3 : STATIONS ════════════════════════════════════ -->
+<div id="p-sta" class="panel">
+
+  <div class="card">
+    <h2>🗺️ Station la plus intéressante</h2>
+    <div class="grid2">
+      <div><label>Litres à remplir</label><input id="slitres" type="number" value="30" min="5" max="100" oninput="calcSta()"></div>
+      <div><label>Rayon (km)</label>
+        <select id="srayon" onchange="calcSta()">
+          <option value="5">5 km</option><option value="10" selected>10 km</option>
+          <option value="20">20 km</option><option value="50">50 km</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <button class="btn" onclick="localize()">📍 Ma position GPS</button>
+      <button class="btn btn-ghost" onclick="demoSta()">🔄 Données démo</button>
+    </div>
+    <p id="spos" class="muted" style="margin-top:9px;text-align:center;font-size:13px">Position non définie</p>
+  </div>
+
+  <div class="info-box" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">
+    💡 <strong>Intégration possible :</strong> API gratuite <strong>prix-carburants.gouv.fr</strong>
+    (gouvernement FR) pour des prix en temps réel sur toutes les stations françaises.
+    Les données ci-dessous sont des données de démonstration.
+  </div>
+
+  <div id="sta-list"></div>
+</div>
+
+<!-- ═══ BARRE NAVIGATION ════════════════════════════════════ -->
+<nav class="tabbar">
+  <button class="tabbtn on" onclick="goTab('veh')" id="t-veh">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v5"/><circle cx="16" cy="19" r="2"/><circle cx="7" cy="19" r="2"/><path d="M3 13h18M9 5v8"/></svg>Véhicule
+  </button>
+  <button class="tabbtn" onclick="goTab('eco')" id="t-eco">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Économies
+  </button>
+  <button class="tabbtn" onclick="goTab('sta')" id="t-sta">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Stations
+  </button>
+</nav>
+
+<script>
+// ── ÉTAT ─────────────────────────────────────────────────────
+let V = {nom:'Renault Clio',carbu:'SP95E10',res:45,conso:6.5,coutkm:0.114,cx:0.30,surface:2.19,masse:1100,crr:0.013};
+let userPos = null;
+let staList = [];
+const PRIX_REF = {SP98:1.88,'SP95E10':1.75,Diesel:1.68,E85:0.82};
+const TABS = {veh:'Mon véhicule',eco:'Économies vitesse',sta:'Stations carburant'};
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function goTab(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  document.getElementById('t-'+id).classList.add('on');
+  document.getElementById('topTitle').textContent = TABS[id];
+  if(id==='eco') calcEco();
+}
+
+// ── VÉHICULE ─────────────────────────────────────────────────
+function majCoutKm() {
+  const c = parseFloat(document.getElementById('vconso').value)||6.5;
+  const carbu = document.getElementById('vcarbu').value;
+  const p = PRIX_REF[carbu]||1.75;
+  const ck = (c/100)*p;
+  document.getElementById('vcoutkm').value = ck.toFixed(3);
+  V.coutkm = ck;
+}
+document.getElementById('vcarbu').addEventListener('change', majCoutKm);
+
+function chargerVeh() {
+  try { const s=localStorage.getItem('carbueco'); if(s) V=JSON.parse(s); } catch(e){}
+  document.getElementById('vnom').value = V.nom;
+  document.getElementById('vcarbu').value = V.carbu;
+  document.getElementById('vres').value = V.res;
+  document.getElementById('vconso').value = V.conso;
+  document.getElementById('vcoutkm').value = V.coutkm;
+  document.getElementById('vcx').value = V.cx;
+  document.getElementById('vsurface').value = V.surface;
+  document.getElementById('vmasse').value = V.masse;
+  document.getElementById('vcrr').value = V.crr;
+}
+
+function sauverVeh() {
+  V = {
+    nom: document.getElementById('vnom').value,
+    carbu: document.getElementById('vcarbu').value,
+    res: +document.getElementById('vres').value,
+    conso: +document.getElementById('vconso').value,
+    coutkm: +document.getElementById('vcoutkm').value,
+    cx: +document.getElementById('vcx').value,
+    surface: +document.getElementById('vsurface').value,
+    masse: +document.getElementById('vmasse').value,
+    crr: +document.getElementById('vcrr').value,
+  };
+  try { localStorage.setItem('carbueco', JSON.stringify(V)); } catch(e){}
+  const m = document.getElementById('vmsg');
+  m.textContent = '✓ Sauvegardé';
+  setTimeout(()=>m.textContent='', 2200);
+}
+
+// ── CALCUL ÉCONOMIES ─────────────────────────────────────────
+function calcEco() {
+  const v1=+document.getElementById('ev1').value||110;
+  const v2=+document.getElementById('ev2').value||100;
+  const dist=+document.getElementById('edist').value||200;
+  const prix=+document.getElementById('eprix').value||1.75;
+  const warn=document.getElementById('eco-warn');
+  const res=document.getElementById('eco-res');
+  if(v2>=v1){warn.style.display='block';res.style.display='none';return;}
+  warn.style.display='none';
+  const rho=1.225,g=9.81;
+  const fa1=0.5*rho*V.cx*V.surface*(v1/3.6)**2;
+  const fa2=0.5*rho*V.cx*V.surface*(v2/3.6)**2;
+  const fr=V.crr*V.masse*g;
+  const gain=1-(fa2+fr)/(fa1+fr);
+  const lit1=V.conso*dist/100;
+  const litEco=lit1*gain;
+  const euros=litEco*prix;
+  const tps=((dist/v2)-(dist/v1))*60;
+  document.getElementById('r-pct').textContent=(gain*100).toFixed(1)+'%';
+  document.getElementById('r-eur').textContent=euros.toFixed(2)+'€';
+  document.getElementById('r-lit').textContent=litEco.toFixed(1)+' L';
+  document.getElementById('r-tps').textContent='+'+tps.toFixed(0)+' min';
+  res.style.display='block';
+}
+
+// ── GÉOLOCALISATION ──────────────────────────────────────────
+function haversine(la1,lo1,la2,lo2) {
+  const R=6371,r=Math.PI/180;
+  const a=Math.sin(((la2-la1)*r)/2)**2+Math.cos(la1*r)*Math.cos(la2*r)*Math.sin(((lo2-lo1)*r)/2)**2;
+  return R*2*Math.asin(Math.sqrt(a));
+}
+
+function localize() {
+  document.getElementById('spos').textContent='📡 Localisation…';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userPos={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    document.getElementById('spos').textContent=`📍 ${userPos.lat.toFixed(5)}° N, ${userPos.lng.toFixed(5)}° E`;
+    demoSta();
+  }, ()=>{
+    document.getElementById('spos').textContent='⚠️ GPS indisponible — position démo utilisée';
+    userPos={lat:49.1829,lng:0.3707}; // Lisieux, Normandie
+    demoSta();
+  });
+}
+
+// ── STATIONS DÉMO ────────────────────────────────────────────
+function demoSta() {
+  if(!userPos) { userPos={lat:49.1829,lng:0.3707}; }
+  const pRef = PRIX_REF[V.carbu]||1.75;
+  const noms=[['🔵 Total Access',-.01],['🟡 BP',+.02],['🔴 Shell',+.04],
+              ['🟣 Intermarché',-.06],['🟠 E.Leclerc',-.08],['🔵 Carrefour',-.04],
+              ['⚪ Esso',+.01],['🟢 Super U',-.03],['⬛ Route express',-.09],['🟤 Vito station',+.06]];
+  staList = noms.map(([nom,delta],i)=>{
+    const angle=(i/noms.length)*2*Math.PI+0.3;
+    const d=1.2+Math.random()*12;
+    const dlat=(d/111)*Math.cos(angle);
+    const dlng=(d/111/Math.cos(userPos.lat*Math.PI/180))*Math.sin(angle);
+    return {nom, lat:userPos.lat+dlat, lng:userPos.lng+dlng,
+            prix:Math.round((pRef+delta+((Math.random()-.5)*.02))*1000)/1000,
+            distance:d};
+  });
+  calcSta();
+}
+
+function calcSta() {
+  if(!staList.length) {
+    document.getElementById('sta-list').innerHTML='<p class="muted" style="text-align:center;padding:20px">Cliquez sur "Ma position GPS" ou "Données démo"</p>';
+    return;
+  }
+  const litres=+document.getElementById('slitres').value||30;
+  const rayon=+document.getElementById('srayon').value||10;
+  const coutkm=V.coutkm||0.114;
+  const visibles=staList.filter(s=>s.distance<=rayon);
+  if(!visibles.length){
+    document.getElementById('sta-list').innerHTML='<p class="muted" style="text-align:center;padding:20px">Aucune station dans ce rayon — élargissez la recherche</p>';
+    return;
+  }
+  // Station de référence = plus proche (sans détour)
+  const proche=[...visibles].sort((a,b)=>a.distance-b.distance)[0];
+  const pRef=proche.prix;
+  // Score chaque station
+  const scored=visibles.map(s=>{
+    const detour=s.distance*2; // aller-retour simplifié
+    const coutDetour=detour*coutkm;
+    const ecoNette=(pRef-s.prix)*litres - coutDetour;
+    const total=s.prix*litres + coutDetour;
+    return {...s,detour,coutDetour,ecoNette,total};
+  }).sort((a,b)=>b.ecoNette-a.ecoNette);
+
+  const best=scored[0];
+  let html=`
+  <div class="card" style="background:var(--ok);color:#fff;padding:14px 16px;margin-bottom:10px">
+    <div style="font-size:12px;opacity:.85;font-weight:600;text-transform:uppercase;letter-spacing:.05em">⭐ Station recommandée</div>
+    <div style="font-weight:900;font-size:19px;margin:4px 0">${best.nom}</div>
+    <div style="font-size:13px;opacity:.9">${best.distance.toFixed(1)} km · ${best.prix.toFixed(3)} €/L · coût total ${best.total.toFixed(2)}€ · économie nette ${best.ecoNette>0?'+':''}${best.ecoNette.toFixed(2)}€</div>
+  </div>
+  <p class="muted" style="font-size:11px;margin-bottom:10px">
+    Formule : économie nette = (prix_ref − prix) × litres − (détour_km × ${coutkm.toFixed(3)} €/km)<br>
+    Référence = station la plus proche (${proche.nom.replace(/^.{2}/,'')} à ${proche.distance.toFixed(1)} km, ${pRef.toFixed(3)} €/L)
+  </p>`;
+
+  scored.forEach((s,i)=>{
+    const g=s.ecoNette;
+    const bc=g>0.5?'bg':g>0?'bo':'br';
+    const gl=g>0?'+'+g.toFixed(2):g.toFixed(2);
+    html+=`
+    <div class="scard ${i===0?'best':''}">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-weight:700;font-size:15px">${s.nom}</div>
+          <div class="muted">${s.distance.toFixed(1)} km · détour ${s.detour.toFixed(1)} km · coût détour ${s.coutDetour.toFixed(2)}€</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">
+          <div style="font-size:21px;font-weight:900;color:var(--accent)">${s.prix.toFixed(3)}€</div>
+          <div class="muted" style="font-size:11px">/litre</div>
+        </div>
+      </div>
+      <div style="margin-top:9px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <div class="muted">${litres}L → <strong style="color:var(--text)">${(s.prix*litres).toFixed(2)}€</strong> + détour = <strong style="color:var(--text)">${s.total.toFixed(2)}€</strong></div>
+        <span class="badge ${bc}">${i===0?'⭐ ':''}${gl}€</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('sta-list').innerHTML=html;
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+chargerVeh();
+calcEco();
+</script>
+</body>
+</html>
